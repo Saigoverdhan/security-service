@@ -1,12 +1,20 @@
 package com.security.microservice.entity;
 
+import com.security.microservice.enums.authtype;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(
+        name = "user",
+        indexes = {
+                @Index(name = "idx_user_email", columnList = "email")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,59 +26,67 @@ public class user {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String username;
+    @Column(name = "first_name", nullable = false, length = 50)
+    private String firstname;
 
-    @Column(nullable = false, unique = true, length = 120)
+    @Column(name = "last_name", nullable = false, length = 50)
+    private String lastname;
+
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(unique = true, length = 20)
-    private String mobile;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private authtype provider;
 
     @Column(nullable = false)
-    private Boolean enabled = false;
+    private Boolean enabled;
+
+    @Column(name = "email_verified", nullable = false)
+    private Boolean emailverified;
+
+    @Column(name = "last_login")
+    private LocalDateTime lastlogin;
 
     @Column(nullable = false)
-    private Boolean emailVerified = false;
-
-    @Column(nullable = false)
-    private Boolean mobileVerified = false;
-
-    @Column(nullable = false)
-    private Boolean accountLocked = false;
-
-    @Column(nullable = false)
-    private Boolean accountExpired = false;
-
-    @Column(nullable = false)
-    private Boolean credentialsExpired = false;
-
-    @Column(nullable = false)
-    private Boolean deleted = false;
-
-    @Column(length = 30)
-    private String provider;
-
-    @Column(length = 150)
-    private String providerId;
+    private Boolean deleted;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdat;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedat;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<userrole> userroles = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+
+        this.createdat = LocalDateTime.now();
+        this.updatedat = LocalDateTime.now();
+
+        if (enabled == null)
+            enabled = false;
+
+        if (emailverified == null)
+            emailverified = false;
+
+        if (deleted == null)
+            deleted = false;
     }
 
     @PreUpdate
     public void preUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedat = LocalDateTime.now();
     }
+
 }
