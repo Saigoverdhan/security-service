@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
+@Slf4j
 @Service
 public class JwtService {
 
@@ -27,6 +29,8 @@ public class JwtService {
 
     // Generate Access Token
     public String generateAccessToken(User user) {
+        //logging
+        log.debug("Access token generated for {}", user.getUsername());
 
         return Jwts.builder()
                 .setSubject(user.getUsername())
@@ -39,6 +43,9 @@ public class JwtService {
 
     // Generate Refresh Token
     public String generateRefreshToken(User user) {
+
+        //logging
+        log.debug("Refresh token generated for {}", user.getUsername());
 
         return Jwts.builder()
                 .setSubject(user.getUsername())

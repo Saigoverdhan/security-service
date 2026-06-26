@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler
@@ -46,6 +48,9 @@ public class OAuth2AuthenticationSuccessHandler
 
         RefreshToken refreshToken =
                 refreshTokenService.createRefreshToken(user);
+
+        //logging
+        log.info("Google authentication successful.");
 
         response.sendRedirect(
                 "http://localhost:3000/oauth2/success"

@@ -16,6 +16,7 @@ import com.security.microservice.repository.UserRepository;
 import com.security.microservice.security.jwt.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -64,12 +66,20 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public UserResponse register(RegisterRequest request) {
+        //logging
+        log.info("Registration request received for email: {}", request.getEmail());
 
         if (userRepository.existsByUsername(request.getUsername())) {
+            //for logging
+            log.warn("Username already exists: {}", request.getUsername());
+
             throw new UserAlreadyExistsException("Username already exists.");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
+            //logging
+            log.warn("Email already exists: {}", request.getEmail());
+
             throw new UserAlreadyExistsException("Email already exists.");
         }
 
@@ -85,9 +95,15 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(user);
 
+        //logging
+        log.info("User registered successfully. User ID: {}", savedUser.getId());
+
         String otp = otpService.generateOtp();
 
         otpService.saveOtp(savedUser, otp);
+
+        //logging
+        log.info("OTP generated for {}", savedUser.getEmail());
 
         emailService.sendOtp(savedUser.getEmail(), otp);
 
@@ -107,6 +123,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse login(LoginRequest request) {
 
+        //logging
+        log.info("Login request received for username: {}", request.getUsername());
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -119,10 +138,15 @@ public class AuthServiceImpl implements AuthService {
                         new ResourceNotFoundException("User not found"));
 
         if (user.getProvider() == AuthProvider.GOOGLE) {
+            //logging
+            log.warn("Password login attempted for Google account: {}", user.getEmail());
             throw new RuntimeException("Please login using Google.");
         }
 
         if (!Boolean.TRUE.equals(user.getEnabled())) {
+            //logging
+            log.warn("Email not verified: {}", user.getEmail());
+
             throw new RuntimeException("Please verify your email before logging in.");
         }
 
@@ -130,6 +154,9 @@ public class AuthServiceImpl implements AuthService {
 
         RefreshToken refreshToken =
                 refreshTokenService.createRefreshToken(user);
+
+        //logging
+        log.info("Login successful for {}", user.getUsername());
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
@@ -147,6 +174,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ApiResponse verifyOtp(VerifyOtpRequest request) {
 
+         //logging
+        log.info("OTP verification started for {}", request.getEmail());
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
@@ -156,10 +186,16 @@ public class AuthServiceImpl implements AuthService {
                         new InvalidOtpException("OTP not found"));
 
         if (!otp.getOtp().equals(request.getOtp())) {
+            //logging
+            log.warn("Invalid OTP entered for {}", request.getEmail());
+
             throw new InvalidOtpException("Invalid OTP");
         }
 
         if (otp.getExpiryTime().isBefore(LocalDateTime.now())) {
+            //logging
+            log.warn("OTP expired for {}", request.getEmail());
+
             throw new InvalidOtpException("OTP Expired");
         }
 
@@ -169,6 +205,9 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         otpRepository.delete(otp);
+
+        //logging
+        log.info("OTP verified successfully for {}", request.getEmail());
 
         return ApiResponse.builder()
                 .success(true)
@@ -184,6 +223,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ApiResponse forgotPassword(ForgotPasswordRequest request) {
 
+        //logging
+        log.info("Forgot password requested for {}", request.getEmail());
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
@@ -193,6 +235,9 @@ public class AuthServiceImpl implements AuthService {
         otpService.saveOtp(user, otp);
 
         emailService.sendOtp(user.getEmail(), otp);
+
+        //logging
+        log.info("Reset OTP sent to {}", request.getEmail());
 
         return ApiResponse.builder()
                 .success(true)
@@ -207,6 +252,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ApiResponse resetPassword(ResetPasswordRequest request) {
+
+        //logging
+        log.info("Password reset started for {}", request.getEmail());
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
@@ -230,6 +278,9 @@ public class AuthServiceImpl implements AuthService {
 
         otpRepository.delete(otp);
 
+        //logging
+        log.info("Password reset successful for {}", request.getEmail());
+
         return ApiResponse.builder()
                 .success(true)
                 .message("Password Reset Successfully")
@@ -244,12 +295,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse refreshToken(RefreshTokenRequest request) {
 
+        //logging
+        log.info("Refresh token request received.");
+
         RefreshToken refreshToken = refreshTokenService
                 .verifyRefreshToken(request.getRefreshToken());
 
         User user = refreshToken.getUser();
 
         String accessToken = jwtService.generateAccessToken(user);
+
+        //logging
+        log.info("New access token generated.");
 
         return AuthResponse.builder()
                 .accessToken(accessToken)

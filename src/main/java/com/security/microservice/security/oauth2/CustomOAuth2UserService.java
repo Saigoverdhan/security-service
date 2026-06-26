@@ -5,6 +5,7 @@ import com.security.microservice.enums.AuthProvider;
 import com.security.microservice.enums.Role;
 import com.security.microservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
@@ -43,9 +45,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private User createGoogleUser(String email, String name) {
 
+
         String username = email.split("@")[0];
 
         if (userRepository.existsByUsername(username)) {
+            log.info("Google login for {}", email);
             username = username + "_" + System.currentTimeMillis();
         }
 
@@ -59,6 +63,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .emailVerified(true)
                 .build();
 
+        //logging
+        log.info("Creating new Google user {}", email);
         return userRepository.save(user);
     }
 }
