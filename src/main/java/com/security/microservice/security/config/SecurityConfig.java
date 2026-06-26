@@ -1,6 +1,9 @@
 package com.security.microservice.security.config;
 
 import com.security.microservice.security.filter.JwtAuthenticationFilter;
+import com.security.microservice.security.oauth2.CustomOAuth2UserService;
+import com.security.microservice.security.oauth2.OAuth2AuthenticationFailureHandler;
+import com.security.microservice.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,24 +24,45 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    private final OAuth2AuthenticationSuccessHandler successHandler;
+
+    private final OAuth2AuthenticationFailureHandler failureHandler;
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
 
         http
 
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
-                                "/auth/**"
+                                "/auth/**",
+                                "/login/**",
+                                "/oauth2/**"
                         ).permitAll()
 
                         .anyRequest()
                         .authenticated()
+
+                )
+
+                .oauth2Login(oauth -> oauth
+
+                        .userInfoEndpoint(user ->
+                                user.userService(customOAuth2UserService))
+
+                        .successHandler(successHandler)
+
+                        .failureHandler(failureHandler)
 
                 )
 
@@ -48,6 +72,7 @@ public class SecurityConfig {
                 );
 
         return http.build();
+
     }
 
     @Bean

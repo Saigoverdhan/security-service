@@ -5,6 +5,7 @@ import com.security.microservice.dto.response.*;
 import com.security.microservice.entity.Otp;
 import com.security.microservice.entity.RefreshToken;
 import com.security.microservice.entity.User;
+import com.security.microservice.enums.AuthProvider;
 import com.security.microservice.exception.InvalidOtpException;
 import com.security.microservice.exception.RefreshTokenException;
 import com.security.microservice.exception.ResourceNotFoundException;
@@ -77,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
+                .provider(AuthProvider.LOCAL)
                 .enabled(false)
                 .emailVerified(false)
                 .build();

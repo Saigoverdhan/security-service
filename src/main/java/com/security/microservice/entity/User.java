@@ -1,5 +1,6 @@
 package com.security.microservice.entity;
 
+import com.security.microservice.enums.AuthProvider;
 import com.security.microservice.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,6 +39,10 @@ public class User {
     @Builder.Default
     private Boolean emailVerified = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private AuthProvider provider = AuthProvider.LOCAL;
 }
 
 
