@@ -1,9 +1,9 @@
-package com.security.microservice.service;
+package com.security.microservice.security.service;
 
 
 import com.security.microservice.entity.User;
 import com.security.microservice.repository.UserRepository;
-import com.security.microservice.security.CustomUserDetails;
+import com.security.microservice.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;

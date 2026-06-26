@@ -1,4 +1,4 @@
-package com.security.microservice.security;
+package com.security.microservice.security.userdetails;
 
 import com.security.microservice.entity.User;
 import lombok.AllArgsConstructor;

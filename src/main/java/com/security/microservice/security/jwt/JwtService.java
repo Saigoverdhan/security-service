@@ -1,4 +1,4 @@
-package com.security.microservice.security;
+package com.security.microservice.security.jwt;
 
 import com.security.microservice.entity.User;
 import io.jsonwebtoken.Claims;

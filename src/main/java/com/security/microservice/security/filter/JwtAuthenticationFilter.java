@@ -1,7 +1,8 @@
-package com.security.microservice.security;
+package com.security.microservice.security.filter;
 
-import com.security.microservice.security.JwtService;
-import com.security.microservice.service.CustomUserDetailsService;
+import com.security.microservice.security.jwt.JwtService;
+import com.security.microservice.security.userdetails.CustomUserDetails;
+import com.security.microservice.security.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     customUserDetailsService.loadUserByUsername(username);
 
             if (jwtService.isTokenValid(jwt,
-                    ((com.security.microservice.security.CustomUserDetails) userDetails).getUser())) {
+                    ((CustomUserDetails) userDetails).getUser())) {
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
