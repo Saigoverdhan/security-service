@@ -30,6 +30,14 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean enabled = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean emailVerified = false;
+
 }
 
 

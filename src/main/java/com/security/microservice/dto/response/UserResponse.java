@@ -4,7 +4,7 @@ package com.security.microservice.dto.response;
 
 import lombok.*;
 
-import javax.management.relation.Role;
+import com.security.microservice.enums.Role;
 
 
 @Getter
