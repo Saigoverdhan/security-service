@@ -1,6 +1,6 @@
 package com.security.microservice.entity;
 
-import com.security.microservice.enums.role;
+import com.security.microservice.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class user {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class user {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private role role;
+    private Role role;
 
 }
 

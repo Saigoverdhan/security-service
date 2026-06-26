@@ -1,7 +1,7 @@
 package com.security.microservice.enums;
 
 
-public enum role {
+public enum Role {
 
         LEARNER,
         INSTRUCTOR,
