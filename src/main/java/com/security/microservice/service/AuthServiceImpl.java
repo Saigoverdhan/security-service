@@ -118,6 +118,10 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
 
+        if (user.getProvider() == AuthProvider.GOOGLE) {
+            throw new RuntimeException("Please login using Google.");
+        }
+
         if (!Boolean.TRUE.equals(user.getEnabled())) {
             throw new RuntimeException("Please verify your email before logging in.");
         }
