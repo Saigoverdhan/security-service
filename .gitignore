@@ -34,3 +34,5 @@ build/
 
 ### Env FILES ##
 src/main/resources/application-env.properties
+docker-compose.yml
+Dockerfile
