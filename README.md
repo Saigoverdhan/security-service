@@ -1,57 +1,79 @@
-🔐 Security Microservice
-A production-style Spring Boot Security Microservice built using Java 21, Spring Boot 3, Spring Security 6, JWT Authentication, Refresh Tokens, Email OTP Verification, and Google OAuth2 Login.
+# 🔐 Security Microservice
 
-This microservice is designed as the authentication service for a scalable microservices-based online learning platform.
+A production-inspired **Spring Boot Security Microservice** built using **Java 21**, **Spring Boot 3**, **Spring Security 6**, **JWT Authentication**, **Refresh Tokens**, **Email OTP Verification**, and **Google OAuth2 Login**.
 
-🚀 Features
-✅ User Registration
-✅ Email OTP Verification
-✅ Username & Email Validation
-✅ BCrypt Password Encryption
-✅ JWT Authentication
-✅ Refresh Token Authentication
-✅ Forgot Password
-✅ Reset Password
-✅ Google OAuth2 Login
-✅ Local + Google Authentication Support
-✅ Role Based Authentication
-✅ Global Exception Handling
-✅ SLF4J Logging
-✅ Transaction Management
-✅ REST APIs
-✅ MySQL Database
-🛠 Tech Stack
-Java 21
-Spring Boot 3
-Spring Security 6
-Spring Data JPA
-Hibernate
-MySQL
-JWT
-OAuth2 Client
-Spring Mail
-Lombok
-Maven
-SLF4J Logging
-📂 Project Structure
+This project serves as the authentication service for a scalable **microservices-based online learning platform**.
+
+---
+
+# 🚀 Features
+
+* ✅ User Registration
+* ✅ Email OTP Verification
+* ✅ Username & Email Validation
+* ✅ BCrypt Password Encryption
+* ✅ JWT Authentication
+* ✅ Refresh Token Authentication
+* ✅ Forgot Password
+* ✅ Reset Password
+* ✅ Google OAuth2 Login
+* ✅ Local + Google Authentication Support
+* ✅ Role-Based Authentication
+* ✅ Global Exception Handling
+* ✅ SLF4J Logging
+* ✅ Transaction Management
+* ✅ REST APIs
+* ✅ MySQL Database
+
+---
+
+# 🛠 Tech Stack
+
+| Technology      | Version / Usage       |
+| --------------- | --------------------- |
+| Java            | 21                    |
+| Spring Boot     | 3.x                   |
+| Spring Security | 6                     |
+| Spring Data JPA | ORM                   |
+| Hibernate       | ORM                   |
+| MySQL           | Database              |
+| JWT             | Authentication        |
+| OAuth2 Client   | Google Login          |
+| Spring Mail     | Email Service         |
+| Lombok          | Boilerplate Reduction |
+| Maven           | Build Tool            |
+| SLF4J           | Logging               |
+
+---
+
+# 📂 Project Structure
+
+```text
 src
- ├── controller
- ├── dto
- │     ├── request
- │     └── response
- ├── entity
- ├── enums
- ├── exception
- ├── repository
- ├── security
- │     ├── config
- │     ├── filter
- │     ├── jwt
- │     └── oauth2
- ├── service
- └── MicroserviceApplication
-🔑 Authentication Flow
-Local Registration
+├── controller
+├── dto
+│   ├── request
+│   └── response
+├── entity
+├── enums
+├── exception
+├── repository
+├── security
+│   ├── config
+│   ├── filter
+│   ├── jwt
+│   └── oauth2
+├── service
+└── MicroserviceApplication
+```
+
+---
+
+# 🔑 Authentication Flow
+
+## Local Registration
+
+```text
 User Registration
         │
         ▼
@@ -68,52 +90,81 @@ Generate OTP
         │
         ▼
 Send OTP Email
-Email Verification
+```
+
+---
+
+## Email Verification
+
+```text
 User
-   │
-   ▼
+ │
+ ▼
 Enter OTP
-   │
-   ▼
+ │
+ ▼
 Verify OTP
-   │
-   ▼
+ │
+ ▼
 Enable Account
-Login Flow
+```
+
+---
+
+## Login Flow
+
+```text
 Username + Password
-          │
-          ▼
+        │
+        ▼
 Authentication Manager
-          │
-          ▼
+        │
+        ▼
 JWT Access Token
 +
 Refresh Token
-JWT Authentication
+```
+
+---
+
+## JWT Authentication
+
+```text
 Client
-   │
-Authorization: Bearer Token
-   │
-   ▼
+ │
+ │ Authorization: Bearer <JWT>
+ ▼
 JwtAuthenticationFilter
-   │
-   ▼
+ │
+ ▼
 Validate Token
-   │
-   ▼
+ │
+ ▼
 Protected API
-Refresh Token Flow
+```
+
+---
+
+## Refresh Token Flow
+
+```text
 Access Token Expired
-          │
-          ▼
+        │
+        ▼
 POST /auth/refresh-token
-          │
-          ▼
+        │
+        ▼
 Validate Refresh Token
-          │
-          ▼
+        │
+        ▼
 Generate New Access Token
-Google OAuth2 Login
+```
+
+---
+
+## Google OAuth2 Login
+
+```text
 Google Login
       │
       ▼
@@ -132,101 +183,177 @@ Login   Create Account
  └────┬─────┘
       ▼
 Generate JWT
-📌 REST APIs
-Authentication
-Method	Endpoint
-POST	/auth/register
-POST	/auth/verify-otp
-POST	/auth/login
-POST	/auth/refresh-token
-POST	/auth/forgot-password
-POST	/auth/reset-password
-OAuth2
-GET /oauth2/authorization/google
-🗄 Database Tables
-users
-id
-username
-email
-password
-role
-provider
-enabled
-email_verified
-otp
-id
-otp
-expiry_time
-user_id
-refresh_tokens
-id
-token
-expiry_date
-user_id
-🔐 Security Features
-BCrypt Password Encryption
-Stateless JWT Authentication
-Refresh Token Authentication
-Email Verification
-OTP Expiration
-Role Based Authorization
-Google OAuth2 Authentication
-Global Exception Handling
-Transaction Rollback
-Secure Logging
-📖 Logging
-Logs are available in:
+```
 
+---
+
+# 📌 REST APIs
+
+## Authentication APIs
+
+| Method | Endpoint                |
+| ------ | ----------------------- |
+| POST   | `/auth/register`        |
+| POST   | `/auth/verify-otp`      |
+| POST   | `/auth/login`           |
+| POST   | `/auth/refresh-token`   |
+| POST   | `/auth/forgot-password` |
+| POST   | `/auth/reset-password`  |
+
+## OAuth2
+
+| Method | Endpoint                       |
+| ------ | ------------------------------ |
+| GET    | `/oauth2/authorization/google` |
+
+---
+
+# 🗄 Database Tables
+
+## users
+
+| Column         |
+| -------------- |
+| id             |
+| username       |
+| email          |
+| password       |
+| role           |
+| provider       |
+| enabled        |
+| email_verified |
+
+## otp
+
+| Column      |
+| ----------- |
+| id          |
+| otp         |
+| expiry_time |
+| user_id     |
+
+## refresh_tokens
+
+| Column      |
+| ----------- |
+| id          |
+| token       |
+| expiry_date |
+| user_id     |
+
+---
+
+# 🔐 Security Features
+
+* BCrypt Password Encryption
+* Stateless JWT Authentication
+* Refresh Token Authentication
+* Email Verification
+* OTP Expiration
+* Role-Based Authorization
+* Google OAuth2 Authentication
+* Global Exception Handling
+* Transaction Rollback
+* Secure Logging
+
+---
+
+# 📖 Logging
+
+Application logs are stored at:
+
+```text
 logs/security-microservice.log
-Logging includes:
+```
 
-User Registration
-Login Attempts
-OTP Generation
-Password Reset
-JWT Authentication
-Refresh Token
-Google Login
-Errors & Exceptions
-⚙ Configuration
-Configure the following in application.properties.
+The application logs:
 
-MySQL
-Gmail SMTP
-JWT Secret
-OAuth2 Client ID
-OAuth2 Client Secret
-▶️ Run the Project
-Clone the repository
+* User Registration
+* Login Attempts
+* OTP Generation
+* Password Reset
+* JWT Authentication
+* Refresh Token Validation
+* Google OAuth2 Login
+* Errors & Exceptions
 
+---
+
+# ⚙ Configuration
+
+Configure the following properties in `application.properties`:
+
+* MySQL Database
+* Gmail SMTP
+* JWT Secret
+* OAuth2 Client ID
+* OAuth2 Client Secret
+
+---
+
+# ▶️ Run the Project
+
+### Clone the repository
+
+```bash
 git clone <repository-url>
-Move into the project
+```
 
+### Navigate to the project
+
+```bash
 cd security-microservice
-Build the project
+```
 
+### Build the project
+
+```bash
 mvn clean install
-Run
+```
 
+### Run the application
+
+```bash
 mvn spring-boot:run
-📈 Future Improvements
-Logout API
-Refresh Token Rotation
-Multi-device Session Management
-Swagger / OpenAPI Documentation
-Docker Support
-Kubernetes Deployment
-Redis Token Blacklist
-Rate Limiting
-Audit Logging
-👨‍💻 Author
-Sai Goverdhan
+```
+
+---
+
+# 📈 Future Improvements
+
+* Logout API
+* Refresh Token Rotation
+* Multi-device Session Management
+* Swagger / OpenAPI Documentation
+* Docker Support
+* Kubernetes Deployment
+* Redis Token Blacklist
+* Rate Limiting
+* Audit Logging
+
+---
+
+# 👨‍💻 Author
+
+**Sai Goverdhan**
 
 Backend Developer
 
-Spring Boot | Microservices | Java | Spring Security | JWT | OAuth2 | Docker | AWS
+**Tech Stack**
 
-⭐ Project Status
-✅ Completed
+* Java
+* Spring Boot
+* Spring Security
+* Microservices
+* JWT
+* OAuth2
+* Docker
+* AWS
 
-This Security Microservice is production-style and serves as the authentication service for a microservices-based learning platform.
+---
+
+# ⭐ Project Status
+
+**✅ Stable**
+
+This Security Microservice is a production-inspired authentication service implementing modern authentication and authorization practices using Spring Boot and Spring Security. It is designed to serve as the authentication component of a scalable microservices-based learning platform.
