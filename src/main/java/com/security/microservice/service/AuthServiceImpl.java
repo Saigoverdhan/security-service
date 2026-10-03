@@ -72,31 +72,38 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public UserResponse register(RegisterRequest request) {
-        //logging
+
         log.info("Registration request received for email: {}", request.getEmail());
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            //for logging
+
             log.warn("Username already exists: {}", request.getUsername());
 
             throw new UserAlreadyExistsException("Username already exists.");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            //logging
+
             log.warn("Email already exists: {}", request.getEmail());
 
             throw new UserAlreadyExistsException("Email already exists.");
         }
 
         String otp = otpService.generateOtp();
-        Role role = request.getRole() != null ? request.getRole() : Role.LEARNER;
 
-        Optional<PendingUser> existingPending = pendingUserRepository.findByEmail(request.getEmail());
+        Role role = request.getRole() != null
+                ? request.getRole()
+                : Role.LEARNER;
+
+        Optional<PendingUser> existingPending =
+                pendingUserRepository.findByEmail(request.getEmail());
+
         PendingUser pendingUser;
 
         if (existingPending.isPresent()) {
+
             pendingUser = existingPending.get();
+
             pendingUser.setUsername(request.getUsername());
             pendingUser.setPassword(passwordEncoder.encode(request.getPassword()));
             pendingUser.setRole(role);
@@ -104,7 +111,9 @@ public class AuthServiceImpl implements AuthService {
             pendingUser.setOtp(otp);
             pendingUser.setOtpExpiresAt(LocalDateTime.now().plusMinutes(10));
             pendingUser.setCreatedAt(LocalDateTime.now());
+
         } else {
+
             pendingUser = PendingUser.builder()
                     .username(request.getUsername())
                     .email(request.getEmail())
@@ -117,13 +126,23 @@ public class AuthServiceImpl implements AuthService {
                     .build();
         }
 
-        PendingUser savedPendingUser = pendingUserRepository.save(pendingUser);
+        PendingUser savedPendingUser =
+                pendingUserRepository.save(pendingUser);
 
-        //logging
-        log.info("Pending registration saved for email: {}", savedPendingUser.getEmail());
-        log.info("OTP generated for {}", savedPendingUser.getEmail());
+        log.info(
+                "Pending registration saved for email: {}",
+                savedPendingUser.getEmail()
+        );
 
-        emailService.sendOtp(savedPendingUser.getEmail(), otp);
+        log.info(
+                "OTP generated for {}",
+                savedPendingUser.getEmail()
+        );
+
+        emailService.sendOtp(
+                savedPendingUser.getEmail(),
+                otp
+        );
 
         return UserResponse.builder()
                 .id(savedPendingUser.getId())
@@ -131,7 +150,6 @@ public class AuthServiceImpl implements AuthService {
                 .email(savedPendingUser.getEmail())
                 .role(savedPendingUser.getRole())
                 .build();
-
     }
 
     // ==============================
@@ -141,49 +159,76 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse login(LoginRequest request) {
 
-        //logging
-        log.info("Login request received for username: {}", request.getUsername());
+        String identifier = request.getIdentifier();
+
+        log.info(
+                "Login request received for identifier: {}",
+                identifier
+        );
+
+        User user;
+
+        if (identifier.contains("@")) {
+
+            user = userRepository.findByEmail(identifier)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("User not found"));
+
+        } else {
+
+            user = userRepository.findByUsername(identifier)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("User not found"));
+        }
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
+                        user.getUsername(),
                         request.getPassword()
                 )
         );
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
-
         if (user.getProvider() == AuthProvider.GOOGLE) {
-            //logging
-            log.warn("Password login attempted for Google account: {}", user.getEmail());
-            throw new RuntimeException("Please login using Google.");
+
+            log.warn(
+                    "Password login attempted for Google account: {}",
+                    user.getEmail()
+            );
+
+            throw new RuntimeException(
+                    "Please login using Google."
+            );
         }
 
         if (!Boolean.TRUE.equals(user.getEnabled())) {
-            //logging
-            log.warn("Email not verified: {}", user.getEmail());
 
-            throw new RuntimeException("Please verify your email before logging in.");
+            log.warn(
+                    "Email not verified: {}",
+                    user.getEmail()
+            );
+
+            throw new RuntimeException(
+                    "Please verify your email before logging in."
+            );
         }
 
-        String accessToken = jwtService.generateAccessToken(user);
+        String accessToken =
+                jwtService.generateAccessToken(user);
 
         RefreshToken refreshToken =
                 refreshTokenService.createRefreshToken(user);
 
-        //logging
-        log.info("Login successful for {}", user.getUsername());
+        log.info(
+                "Login successful for {}",
+                user.getUsername()
+        );
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
                 .message("Login Successful")
                 .build();
-
     }
-
 
     // ==============================
     // Verify OTP
@@ -193,31 +238,51 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public ApiResponse verifyOtp(VerifyOtpRequest request) {
 
-        //logging
-        log.info("OTP verification started for {}", request.getEmail());
+        log.info(
+                "OTP verification started for {}",
+                request.getEmail()
+        );
 
-        PendingUser pendingUser = pendingUserRepository.findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Pending registration not found for email: " + request.getEmail()));
+        PendingUser pendingUser =
+                pendingUserRepository.findByEmail(request.getEmail())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Pending registration not found for email: "
+                                                + request.getEmail()
+                                )
+                        );
 
         if (!pendingUser.getOtp().equals(request.getOtp())) {
-            //logging
-            log.warn("Invalid OTP entered for {}", request.getEmail());
+
+            log.warn(
+                    "Invalid OTP entered for {}",
+                    request.getEmail()
+            );
 
             throw new InvalidOtpException("Invalid OTP");
         }
 
-        if (pendingUser.getOtpExpiresAt().isBefore(LocalDateTime.now())) {
-            //logging
-            log.warn("OTP expired for {}", request.getEmail());
+        if (pendingUser.getOtpExpiresAt()
+                .isBefore(LocalDateTime.now())) {
+
+            log.warn(
+                    "OTP expired for {}",
+                    request.getEmail()
+            );
 
             throw new InvalidOtpException("OTP Expired");
         }
 
-        // Re-check that the email does not already exist in UserRepository
         if (userRepository.existsByEmail(pendingUser.getEmail())) {
-            log.warn("Email already exists in main table: {}", pendingUser.getEmail());
-            throw new UserAlreadyExistsException("Email already exists.");
+
+            log.warn(
+                    "Email already exists in main table: {}",
+                    pendingUser.getEmail()
+            );
+
+            throw new UserAlreadyExistsException(
+                    "Email already exists."
+            );
         }
 
         User user = User.builder()
@@ -225,7 +290,11 @@ public class AuthServiceImpl implements AuthService {
                 .email(pendingUser.getEmail())
                 .password(pendingUser.getPassword())
                 .role(pendingUser.getRole())
-                .provider(pendingUser.getProvider() != null ? pendingUser.getProvider() : AuthProvider.LOCAL)
+                .provider(
+                        pendingUser.getProvider() != null
+                                ? pendingUser.getProvider()
+                                : AuthProvider.LOCAL
+                )
                 .enabled(true)
                 .emailVerified(true)
                 .build();
@@ -234,14 +303,15 @@ public class AuthServiceImpl implements AuthService {
 
         pendingUserRepository.delete(pendingUser);
 
-        //logging
-        log.info("OTP verified successfully and user created for {}", request.getEmail());
+        log.info(
+                "OTP verified successfully and user created for {}",
+                request.getEmail()
+        );
 
         return ApiResponse.builder()
                 .success(true)
                 .message("OTP Verified Successfully")
                 .build();
-
     }
 
     // ==============================
@@ -251,27 +321,37 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ApiResponse forgotPassword(ForgotPasswordRequest request) {
 
-        //logging
-        log.info("Forgot password requested for {}", request.getEmail());
+        log.info(
+                "Forgot password requested for {}",
+                request.getEmail()
+        );
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+        User user =
+                userRepository.findByEmail(request.getEmail())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "User not found"
+                                )
+                        );
 
         String otp = otpService.generateOtp();
 
         otpService.saveOtp(user, otp);
 
-        emailService.sendOtp(user.getEmail(), otp);
+        emailService.sendOtp(
+                user.getEmail(),
+                otp
+        );
 
-        //logging
-        log.info("Reset OTP sent to {}", request.getEmail());
+        log.info(
+                "Reset OTP sent to {}",
+                request.getEmail()
+        );
 
         return ApiResponse.builder()
                 .success(true)
                 .message("OTP Sent Successfully")
                 .build();
-
     }
 
     // ==============================
@@ -279,41 +359,64 @@ public class AuthServiceImpl implements AuthService {
     // ==============================
 
     @Override
-    public ApiResponse resetPassword(ResetPasswordRequest request) {
+    public ApiResponse resetPassword(
+            ResetPasswordRequest request) {
 
-        //logging
-        log.info("Password reset started for {}", request.getEmail());
+        log.info(
+                "Password reset started for {}",
+                request.getEmail()
+        );
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+        User user =
+                userRepository.findByEmail(request.getEmail())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "User not found"
+                                )
+                        );
 
-        Otp otp = otpRepository.findByUser(user)
-                .orElseThrow(() ->
-                        new InvalidOtpException("OTP not found"));
+        Otp otp =
+                otpRepository.findByUser(user)
+                        .orElseThrow(() ->
+                                new InvalidOtpException(
+                                        "OTP not found"
+                                )
+                        );
 
         if (!otp.getOtp().equals(request.getOtp())) {
-            throw new InvalidOtpException("Invalid OTP");
+
+            throw new InvalidOtpException(
+                    "Invalid OTP"
+            );
         }
 
-        if (otp.getExpiryTime().isBefore(LocalDateTime.now())) {
-            throw new InvalidOtpException("OTP Expired");
+        if (otp.getExpiryTime()
+                .isBefore(LocalDateTime.now())) {
+
+            throw new InvalidOtpException(
+                    "OTP Expired"
+            );
         }
 
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(
+                passwordEncoder.encode(
+                        request.getNewPassword()
+                )
+        );
 
         userRepository.save(user);
 
         otpRepository.delete(otp);
 
-        //logging
-        log.info("Password reset successful for {}", request.getEmail());
+        log.info(
+                "Password reset successful for {}",
+                request.getEmail()
+        );
 
         return ApiResponse.builder()
                 .success(true)
                 .message("Password Reset Successfully")
                 .build();
-
     }
 
     // ==============================
@@ -321,27 +424,31 @@ public class AuthServiceImpl implements AuthService {
     // ==============================
 
     @Override
-    public AuthResponse refreshToken(RefreshTokenRequest request) {
+    public AuthResponse refreshToken(
+            RefreshTokenRequest request) {
 
-        //logging
-        log.info("Refresh token request received.");
+        log.info(
+                "Refresh token request received."
+        );
 
-        RefreshToken refreshToken = refreshTokenService
-                .verifyRefreshToken(request.getRefreshToken());
+        RefreshToken refreshToken =
+                refreshTokenService.verifyRefreshToken(
+                        request.getRefreshToken()
+                );
 
         User user = refreshToken.getUser();
 
-        String accessToken = jwtService.generateAccessToken(user);
+        String accessToken =
+                jwtService.generateAccessToken(user);
 
-        //logging
-        log.info("New access token generated.");
+        log.info(
+                "New access token generated."
+        );
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
                 .message("Access Token Generated Successfully")
                 .build();
-
     }
-
 }
