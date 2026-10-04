@@ -1,0 +1,66 @@
+
+  services:
+
+    mysql:
+      image: mysql:8.0
+      container_name: security-mysql
+      restart: unless-stopped
+
+      environment:
+        MYSQL_DATABASE: security
+        MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+
+      ports:
+        - "3307:3306"
+
+      volumes:
+        - mysql_data:/var/lib/mysql
+
+      healthcheck:
+        test:
+          [
+            "CMD",
+            "mysqladmin",
+            "ping",
+            "-h",
+            "localhost",
+            "-u",
+            "root",
+            "-p${DB_PASSWORD}"
+          ]
+        interval: 10s
+        timeout: 5s
+        retries: 10
+
+    security-service:
+      image: security-service:latest
+      container_name: security-service
+      restart: unless-stopped
+
+      depends_on:
+        mysql:
+          condition: service_healthy
+
+      ports:
+        - "8080:8080"
+
+      environment:
+        DB_URL: ${DB_URL}
+        DB_USERNAME: ${DB_USERNAME}
+        DB_PASSWORD: ${DB_PASSWORD}
+
+        OAUTH_NAME: ${OAUTH_NAME}
+        OAUTH_Secret: ${OAUTH_Secret}
+
+        server_port: ${server_port}
+        eureka_server_url: ${eureka_server_url}
+
+        jwt_s_key: ${jwt_s_key}
+        access_token_expirey: ${access_token_expirey}
+        refresh_token_expirey: ${refresh_token_expirey}
+
+        email_id: ${email_id}
+        email_password: ${email_password}
+
+  volumes:
+    mysql_data:
