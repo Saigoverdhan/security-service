@@ -1,4 +1,3 @@
-```yaml
 name: Security Service CI/CD
 
 on:
@@ -116,4 +115,3 @@ jobs:
 
             # Show application logs
             docker logs --tail 50 security-service
-```
