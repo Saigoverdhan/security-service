@@ -359,7 +359,7 @@ public class AuthRegistrationFlowTest {
     @DisplayName("Test case 9: Login after successful registration - newly verified user can login normally")
     void testCase9_loginAfterVerification() {
         LoginRequest request = LoginRequest.builder()
-                .username("john_doe")
+                .identifier("john_doe")
                 .password("Password123")
                 .build();
 
@@ -397,7 +397,7 @@ public class AuthRegistrationFlowTest {
     @DisplayName("Test case 10: Login before verification - impossible because there is no real User in users table yet")
     void testCase10_loginBeforeVerification() {
         LoginRequest request = LoginRequest.builder()
-                .username("john_unverified")
+                .identifier("john_unverified")
                 .password("Password123")
                 .build();
 
