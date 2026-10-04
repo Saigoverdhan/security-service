@@ -1,0 +1,571 @@
+name: Security Service CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+
+  # ============================================================
+  # 1. BUILD, TEST AND PUSH DOCKER IMAGE
+  # ============================================================
+
+  build-and-push:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ----------------------------------------------------------
+      # Checkout
+      # ----------------------------------------------------------
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+
+      # ----------------------------------------------------------
+      # Setup Java 21
+      # ----------------------------------------------------------
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+
+      # ----------------------------------------------------------
+      # Build and Test Spring Boot
+      # ----------------------------------------------------------
+
+      - name: Build and test Spring Boot application
+        run: |
+          chmod +x mvnw
+          ./mvnw clean verify
+
+
+      # ----------------------------------------------------------
+      # Login to GHCR
+      # ----------------------------------------------------------
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+
+      # ----------------------------------------------------------
+      # Build Docker Image
+      # ----------------------------------------------------------
+
+      - name: Build Docker image
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+        run: |
+
+          # Force username to lowercase
+          GHCR_USER=$(printf '%s' "$GHCR_USERNAME" | tr '[:upper:]' '[:lower:]')
+
+          echo "Building image:"
+          echo "ghcr.io/${GHCR_USER}/security-service:latest"
+
+          docker build \
+            -t "ghcr.io/${GHCR_USER}/security-service:latest" \
+            .
+
+
+      # ----------------------------------------------------------
+      # Push Docker Image
+      # ----------------------------------------------------------
+
+      - name: Push Docker image
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+        run: |
+
+          # Force username to lowercase
+          GHCR_USER=$(printf '%s' "$GHCR_USERNAME" | tr '[:upper:]' '[:lower:]')
+
+          docker push \
+            "ghcr.io/${GHCR_USER}/security-service:latest"
+
+
+  # ============================================================
+  # 2. DEPLOY TO AWS EC2
+  # ============================================================
+
+  deploy-to-ec2:
+
+    needs: build-and-push
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ----------------------------------------------------------
+      # Deploy using SSH
+      # ----------------------------------------------------------
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.5
+
+        env:
+
+          # -------------------------
+          # GHCR
+          # -------------------------
+
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+
+
+          # -------------------------
+          # DATABASE
+          # -------------------------
+
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+
+
+          # -------------------------
+          # GOOGLE OAUTH
+          # -------------------------
+
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+
+          # -------------------------
+          # JWT
+          # -------------------------
+
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ACCESS_TOKEN_EXPIRY: ${{ secrets.ACCESS_TOKEN_EXPIRY }}
+          REFRESH_TOKEN_EXPIRY: ${{ secrets.REFRESH_TOKEN_EXPIRY }}
+
+
+          # -------------------------
+          # EMAIL
+          # -------------------------
+
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+
+
+        with:
+
+          host: ${{ secrets.EC2_HOST }}
+
+          username: ${{ secrets.EC2_USERNAME }}
+
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          port: 22
+
+          timeout: 30s
+
+          command_timeout: 10m
+
+          envs: GHCR_USERNAME,GHCR_TOKEN,DB_USERNAME,DB_PASSWORD,DB_ROOT_PASSWORD,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,JWT_SECRET,ACCESS_TOKEN_EXPIRY,REFRESH_TOKEN_EXPIRY,MAIL_USERNAME,MAIL_PASSWORD
+
+
+          # ======================================================
+          # REMOTE DEPLOYMENT SCRIPT
+          # ======================================================
+
+          script: |
+
+            set -e
+
+            echo "=============================================="
+            echo "STARTING SECURITY SERVICE DEPLOYMENT"
+            echo "=============================================="
+
+
+            # ==================================================
+            # LOWERCASE GHCR USERNAME
+            # ==================================================
+
+            GHCR_USER=$(printf '%s' "$GHCR_USERNAME" | tr '[:upper:]' '[:lower:]')
+
+            echo "GHCR namespace: ${GHCR_USER}"
+
+
+            # ==================================================
+            # CREATE DEPLOYMENT DIRECTORY
+            # ==================================================
+
+            mkdir -p ~/security-service
+
+            cd ~/security-service
+
+
+            # ==================================================
+            # CREATE .env SECURELY
+            # ==================================================
+
+            echo "Creating production environment file..."
+
+            umask 077
+
+            rm -f .env
+
+            touch .env
+
+
+            # DATABASE
+
+            printf '%s\n' \
+              "DB_URL=jdbc:mysql://mysql:3306/security" \
+              "DB_USERNAME=$DB_USERNAME" \
+              "DB_PASSWORD=$DB_PASSWORD" \
+              "DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD" \
+              >> .env
+
+
+            # GOOGLE OAUTH
+
+            printf '%s\n' \
+              "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" \
+              "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" \
+              >> .env
+
+
+            # JWT
+
+            printf '%s\n' \
+              "JWT_SECRET=$JWT_SECRET" \
+              "ACCESS_TOKEN_EXPIRY=$ACCESS_TOKEN_EXPIRY" \
+              "REFRESH_TOKEN_EXPIRY=$REFRESH_TOKEN_EXPIRY" \
+              >> .env
+
+
+            # EMAIL
+
+            printf '%s\n' \
+              "MAIL_USERNAME=$MAIL_USERNAME" \
+              "MAIL_PASSWORD=$MAIL_PASSWORD" \
+              >> .env
+
+
+            # GHCR
+
+            printf '%s\n' \
+              "GHCR_USERNAME=$GHCR_USER" \
+              >> .env
+
+
+            chmod 600 .env
+
+
+            echo ".env created."
+
+
+            # ==================================================
+            # CREATE DOCKER COMPOSE FILE
+            # ==================================================
+
+            echo "Creating docker-compose.yml..."
+
+
+            cat > docker-compose.yml <<'COMPOSE_EOF'
+
+            services:
+
+              # ==================================================
+              # MYSQL
+              # ==================================================
+
+              mysql:
+
+                image: mysql:8.0
+
+                container_name: security-mysql
+
+                restart: unless-stopped
+
+                environment:
+
+                  MYSQL_DATABASE: security
+
+                  MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+
+                  MYSQL_USER: ${DB_USERNAME}
+
+                  MYSQL_PASSWORD: ${DB_PASSWORD}
+
+
+                volumes:
+
+                  - mysql_data:/var/lib/mysql
+
+
+                healthcheck:
+
+                  test:
+                    [
+                      "CMD-SHELL",
+                      "mysqladmin ping -h localhost -u root -p\"$${MYSQL_ROOT_PASSWORD}\" || exit 1"
+                    ]
+
+                  interval: 10s
+
+                  timeout: 5s
+
+                  retries: 10
+
+                  start_period: 30s
+
+
+              # ==================================================
+              # SPRING BOOT
+              # ==================================================
+
+              security-service:
+
+                image: ghcr.io/${GHCR_USERNAME}/security-service:latest
+
+                container_name: security-service
+
+                restart: unless-stopped
+
+
+                depends_on:
+
+                  mysql:
+
+                    condition: service_healthy
+
+
+                ports:
+
+                  - "80:8080"
+
+
+                environment:
+
+                  # -------------------------
+                  # DATABASE
+                  # -------------------------
+
+                  DB_URL: ${DB_URL}
+
+                  DB_USERNAME: ${DB_USERNAME}
+
+                  DB_PASSWORD: ${DB_PASSWORD}
+
+
+                  # -------------------------
+                  # JWT
+                  # -------------------------
+
+                  JWT_SECRET: ${JWT_SECRET}
+
+                  ACCESS_TOKEN_EXPIRY: ${ACCESS_TOKEN_EXPIRY}
+
+                  REFRESH_TOKEN_EXPIRY: ${REFRESH_TOKEN_EXPIRY}
+
+
+                  # -------------------------
+                  # GOOGLE OAUTH
+                  # -------------------------
+
+                  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+
+                  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+
+
+                  # -------------------------
+                  # EMAIL
+                  # -------------------------
+
+                  MAIL_USERNAME: ${MAIL_USERNAME}
+
+                  MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+
+                  # -------------------------
+                  # SPRING MAIL
+                  # -------------------------
+
+                  SPRING_MAIL_HOST: smtp.gmail.com
+
+                  SPRING_MAIL_PORT: "587"
+
+                  SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+
+                  SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+
+
+            volumes:
+
+              mysql_data:
+
+            COMPOSE_EOF
+
+
+            # ==================================================
+            # VERIFY COMPOSE FILE
+            # ==================================================
+
+            echo "=============================================="
+            echo "VALIDATING DOCKER COMPOSE"
+            echo "=============================================="
+
+            docker compose config --quiet
+
+            echo "Docker Compose configuration is valid."
+
+
+            # ==================================================
+            # LOGIN TO GHCR
+            # ==================================================
+
+            echo "=============================================="
+            echo "LOGGING INTO GHCR"
+            echo "=============================================="
+
+            printf '%s' "$GHCR_TOKEN" | \
+              docker login ghcr.io \
+              -u "$GHCR_USER" \
+              --password-stdin
+
+
+            # ==================================================
+            # PULL LATEST IMAGE
+            # ==================================================
+
+            echo "=============================================="
+            echo "PULLING LATEST SECURITY SERVICE IMAGE"
+            echo "=============================================="
+
+            docker pull \
+              "ghcr.io/${GHCR_USER}/security-service:latest"
+
+
+            # ==================================================
+            # STOP OLD CONTAINERS
+            # ==================================================
+
+            echo "=============================================="
+            echo "STOPPING OLD DEPLOYMENT"
+            echo "=============================================="
+
+            docker compose down --remove-orphans
+
+
+            # ==================================================
+            # START NEW DEPLOYMENT
+            # ==================================================
+
+            echo "=============================================="
+            echo "STARTING NEW DEPLOYMENT"
+            echo "=============================================="
+
+            docker compose up -d
+
+
+            # ==================================================
+            # WAIT FOR APPLICATION
+            # ==================================================
+
+            echo "Waiting for application startup..."
+
+            sleep 20
+
+
+            # ==================================================
+            # CONTAINER STATUS
+            # ==================================================
+
+            echo "=============================================="
+            echo "CONTAINER STATUS"
+            echo "=============================================="
+
+            docker compose ps
+
+
+            # ==================================================
+            # VERIFY CONTAINERS ARE RUNNING
+            # ==================================================
+
+            echo "=============================================="
+            echo "VERIFYING CONTAINERS"
+            echo "=============================================="
+
+            if [ "$(docker inspect -f '{{.State.Running}}' security-mysql 2>/dev/null)" != "true" ]; then
+
+              echo "ERROR: MySQL container is not running."
+
+              docker logs --tail 100 security-mysql || true
+
+              exit 1
+
+            fi
+
+
+            if [ "$(docker inspect -f '{{.State.Running}}' security-service 2>/dev/null)" != "true" ]; then
+
+              echo "ERROR: Security Service container is not running."
+
+              docker logs --tail 150 security-service || true
+
+              exit 1
+
+            fi
+
+
+            # ==================================================
+            # VERIFY ENVIRONMENT VARIABLE NAMES
+            # ==================================================
+
+            echo "=============================================="
+            echo "VERIFYING APPLICATION ENVIRONMENT"
+            echo "=============================================="
+
+            docker exec security-service sh -c \
+              'env | cut -d= -f1 | sort | grep -E "^(DB_|JWT_|ACCESS_|REFRESH_|GOOGLE_|MAIL_)"' \
+              || true
+
+
+            # ==================================================
+            # MYSQL LOGS
+            # ==================================================
+
+            echo "=============================================="
+            echo "MYSQL LOGS"
+            echo "=============================================="
+
+            docker logs --tail 50 security-mysql || true
+
+
+            # ==================================================
+            # SPRING BOOT LOGS
+            # ==================================================
+
+            echo "=============================================="
+            echo "SPRING BOOT LOGS"
+            echo "=============================================="
+
+            docker logs --tail 100 security-service || true
+
+
+            # ==================================================
+            # FINAL STATUS
+            # ==================================================
+
+            echo "=============================================="
+            echo "DEPLOYMENT COMPLETED"
+            echo "=============================================="
+
+            docker compose ps
