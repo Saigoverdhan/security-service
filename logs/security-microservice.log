@@ -52,3 +52,144 @@
 2026-10-04T10:51:17.244+05:30  INFO 9348 --- [security-microservice] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-10-04T10:51:17.247+05:30  INFO 9348 --- [security-microservice] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2026-10-04T10:51:17.254+05:30  INFO 9348 --- [security-microservice] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-04T14:13:17.667+05:30  INFO 26512 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : Starting MicroserviceApplication using Java 25.0.4.1 with PID 26512 (C:\Users\nannu\Downloads\security-service\target\classes started by nannu in C:\Users\nannu\Downloads\security-service)
+2026-10-04T14:13:17.671+05:30 DEBUG 26512 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : Running with Spring Boot v3.5.15, Spring v6.2.19
+2026-10-04T14:13:17.672+05:30  INFO 26512 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : The following 1 profile is active: "env"
+2026-10-04T14:13:17.800+05:30  INFO 26512 --- [security-microservice] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-04T14:13:17.800+05:30  INFO 26512 --- [security-microservice] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-04T14:13:19.742+05:30  INFO 26512 --- [security-microservice] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-04T14:13:19.889+05:30  INFO 26512 --- [security-microservice] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 127 ms. Found 4 JPA repository interfaces.
+2026-10-04T14:13:20.480+05:30  INFO 12516 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : Starting MicroserviceApplication using Java 25.0.4.1 with PID 12516 (C:\Users\nannu\Downloads\security-service\target\classes started by nannu in C:\Users\nannu\Downloads\security-service)
+2026-10-04T14:13:20.484+05:30 DEBUG 12516 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : Running with Spring Boot v3.5.15, Spring v6.2.19
+2026-10-04T14:13:20.486+05:30  INFO 12516 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : The following 1 profile is active: "env"
+2026-10-04T14:13:20.602+05:30  INFO 12516 --- [security-microservice] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-04T14:13:20.603+05:30  INFO 12516 --- [security-microservice] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-04T14:13:21.362+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-10-04T14:13:21.388+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-04T14:13:21.389+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.55]
+2026-10-04T14:13:21.466+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-04T14:13:21.467+05:30  INFO 26512 --- [security-microservice] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3634 ms
+2026-10-04T14:13:21.729+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-04T14:13:21.818+05:30  INFO 26512 --- [security-microservice] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.53.Final
+2026-10-04T14:13:21.874+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-04T14:13:21.907+05:30  INFO 12516 --- [security-microservice] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-04T14:13:22.019+05:30  INFO 12516 --- [security-microservice] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 98 ms. Found 4 JPA repository interfaces.
+2026-10-04T14:13:22.381+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-04T14:13:22.436+05:30  INFO 26512 --- [security-microservice] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-04T14:13:22.978+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-10-04T14:13:22.997+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-04T14:13:22.999+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.55]
+2026-10-04T14:13:23.063+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-04T14:13:23.064+05:30  INFO 12516 --- [security-microservice] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2420 ms
+2026-10-04T14:13:23.078+05:30  INFO 26512 --- [security-microservice] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@64be78c5
+2026-10-04T14:13:23.081+05:30  INFO 26512 --- [security-microservice] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-04T14:13:23.253+05:30  INFO 26512 --- [security-microservice] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-04T14:13:23.326+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-04T14:13:23.393+05:30  INFO 12516 --- [security-microservice] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.53.Final
+2026-10-04T14:13:23.443+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-04T14:13:23.873+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-04T14:13:23.911+05:30  INFO 12516 --- [security-microservice] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-04T14:13:24.433+05:30  INFO 12516 --- [security-microservice] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@14bd9e45
+2026-10-04T14:13:24.436+05:30  INFO 12516 --- [security-microservice] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-04T14:13:24.542+05:30  INFO 12516 --- [security-microservice] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-04T14:13:24.754+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-04T14:13:24.932+05:30  INFO 26512 --- [security-microservice] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-04T14:13:25.382+05:30 DEBUG 26512 --- [security-microservice] [restartedMain] c.s.m.s.filter.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2026-10-04T14:13:25.490+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-04T14:13:25.856+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-04T14:13:25.957+05:30  INFO 12516 --- [security-microservice] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-04T14:13:26.026+05:30  INFO 26512 --- [security-microservice] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-04T14:13:26.217+05:30  WARN 26512 --- [security-microservice] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-04T14:13:26.426+05:30 DEBUG 12516 --- [security-microservice] [restartedMain] c.s.m.s.filter.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2026-10-04T14:13:26.511+05:30  INFO 12516 --- [security-microservice] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-04T14:13:26.994+05:30  INFO 12516 --- [security-microservice] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-04T14:13:27.142+05:30  WARN 12516 --- [security-microservice] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-04T14:13:27.206+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-10-04T14:13:27.272+05:30  INFO 26512 --- [security-microservice] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-10-04T14:13:27.286+05:30  INFO 26512 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : Started MicroserviceApplication in 10.492 seconds (process running for 11.895)
+2026-10-04T14:13:27.300+05:30  INFO 26512 --- [security-microservice] [scheduling-1] c.s.m.s.PendingUserCleanupScheduler      : Running scheduled cleanup for expired pending registrations
+2026-10-04T14:13:27.377+05:30  INFO 26512 --- [security-microservice] [scheduling-1] c.s.m.s.PendingUserCleanupScheduler      : Cleaned up 0 expired pending registration(s)
+2026-10-04T14:13:28.160+05:30  WARN 12516 --- [security-microservice] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2026-10-04T14:13:28.188+05:30  WARN 12516 --- [security-microservice] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-10-04T14:13:28.192+05:30  INFO 12516 --- [security-microservice] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-04T14:13:28.197+05:30  INFO 12516 --- [security-microservice] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-04T14:13:28.214+05:30  INFO 12516 --- [security-microservice] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-04T14:13:28.234+05:30  INFO 12516 --- [security-microservice] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-10-04T14:13:28.262+05:30 ERROR 12516 --- [security-microservice] [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2026-10-04T14:14:00.629+05:30  INFO 26512 --- [security-microservice] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-04T14:14:00.658+05:30  INFO 26512 --- [security-microservice] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-04T14:14:00.664+05:30  INFO 26512 --- [security-microservice] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-04T14:14:00.668+05:30  INFO 26512 --- [security-microservice] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-04T14:14:00.681+05:30  INFO 26512 --- [security-microservice] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-04T14:14:03.723+05:30  INFO 25256 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : Starting MicroserviceApplication using Java 25.0.4.1 with PID 25256 (C:\Users\nannu\Downloads\security-service\target\classes started by nannu in C:\Users\nannu\Downloads\security-service)
+2026-10-04T14:14:03.726+05:30 DEBUG 25256 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : Running with Spring Boot v3.5.15, Spring v6.2.19
+2026-10-04T14:14:03.727+05:30  INFO 25256 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : The following 1 profile is active: "env"
+2026-10-04T14:14:03.803+05:30  INFO 25256 --- [security-microservice] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-04T14:14:03.804+05:30  INFO 25256 --- [security-microservice] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-04T14:14:05.049+05:30  INFO 25256 --- [security-microservice] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-04T14:14:05.180+05:30  INFO 25256 --- [security-microservice] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 115 ms. Found 4 JPA repository interfaces.
+2026-10-04T14:14:06.208+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-10-04T14:14:06.228+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-04T14:14:06.230+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.55]
+2026-10-04T14:14:06.297+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-04T14:14:06.297+05:30  INFO 25256 --- [security-microservice] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2462 ms
+2026-10-04T14:14:06.539+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-04T14:14:06.602+05:30  INFO 25256 --- [security-microservice] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.53.Final
+2026-10-04T14:14:06.647+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-04T14:14:07.043+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-04T14:14:07.093+05:30  INFO 25256 --- [security-microservice] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-04T14:14:07.690+05:30  INFO 25256 --- [security-microservice] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@323a6fc9
+2026-10-04T14:14:07.692+05:30  INFO 25256 --- [security-microservice] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-04T14:14:07.819+05:30  INFO 25256 --- [security-microservice] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-04T14:14:09.135+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-04T14:14:09.235+05:30  INFO 25256 --- [security-microservice] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-04T14:14:09.676+05:30 DEBUG 25256 --- [security-microservice] [restartedMain] c.s.m.s.filter.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2026-10-04T14:14:09.770+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-04T14:14:10.285+05:30  INFO 25256 --- [security-microservice] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-04T14:14:10.472+05:30  WARN 25256 --- [security-microservice] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-04T14:14:11.493+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-10-04T14:14:11.540+05:30  INFO 25256 --- [security-microservice] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-10-04T14:14:11.558+05:30  INFO 25256 --- [security-microservice] [restartedMain] c.s.m.MicroserviceApplication            : Started MicroserviceApplication in 8.49 seconds (process running for 9.294)
+2026-10-04T14:14:11.577+05:30  INFO 25256 --- [security-microservice] [scheduling-1] c.s.m.s.PendingUserCleanupScheduler      : Running scheduled cleanup for expired pending registrations
+2026-10-04T14:14:11.661+05:30  INFO 25256 --- [security-microservice] [scheduling-1] c.s.m.s.PendingUserCleanupScheduler      : Cleaned up 0 expired pending registration(s)
+2026-10-04T14:14:22.483+05:30  INFO 25256 --- [security-microservice] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-04T14:14:22.508+05:30  INFO 25256 --- [security-microservice] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-04T14:14:22.513+05:30  INFO 25256 --- [security-microservice] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-04T14:14:22.517+05:30  INFO 25256 --- [security-microservice] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-04T14:14:22.524+05:30  INFO 25256 --- [security-microservice] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
