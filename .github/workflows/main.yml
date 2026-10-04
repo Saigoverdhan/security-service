@@ -12,7 +12,7 @@ permissions:
 jobs:
 
   # ============================================================
-  # BUILD + PUSH DOCKER IMAGE
+  # 1. BUILD SPRING BOOT + DOCKER IMAGE + PUSH TO GHCR
   # ============================================================
 
   build-and-push:
@@ -21,11 +21,18 @@ jobs:
 
     steps:
 
-      # 1. Checkout repository
-      - name: Checkout code
+      # --------------------------------------------------------
+      # Checkout
+      # --------------------------------------------------------
+
+      - name: Checkout source code
         uses: actions/checkout@v5
 
-      # 2. Setup Java 21
+
+      # --------------------------------------------------------
+      # Java 21
+      # --------------------------------------------------------
+
       - name: Setup Java 21
         uses: actions/setup-java@v5
         with:
@@ -33,27 +40,50 @@ jobs:
           java-version: '21'
           cache: maven
 
-      # 3. Build Spring Boot application
+
+      # --------------------------------------------------------
+      # Build Spring Boot JAR
+      # --------------------------------------------------------
+      # Tests are skipped because the GitHub runner does not
+      # contain your production MySQL database.
+      # MySQL will be created later on EC2.
+      # --------------------------------------------------------
+
       - name: Build Spring Boot application
         run: |
           chmod +x mvnw
           ./mvnw clean package -DskipTests
 
-      # 4. Login to GitHub Container Registry
+
+      # --------------------------------------------------------
+      # Login to GitHub Container Registry
+      # --------------------------------------------------------
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: saigoverdhan
           password: ${{ secrets.GHCR_TOKEN }}
 
-      # 5. Build Docker image
+
+      # --------------------------------------------------------
+      # Build Docker image
+      # --------------------------------------------------------
+      # IMPORTANT:
+      # GHCR repository name MUST be lowercase.
+      # --------------------------------------------------------
+
       - name: Build Docker image
         run: |
-         docker build \
-           -t ghcr.io/saigoverdhan/security-service:latest .
+          docker build \
+            -t ghcr.io/saigoverdhan/security-service:latest .
 
-      # 6. Push Docker image
+
+      # --------------------------------------------------------
+      # Push Docker image to GHCR
+      # --------------------------------------------------------
+
       - name: Push Docker image
         run: |
           docker push \
@@ -61,15 +91,20 @@ jobs:
 
 
   # ============================================================
-  # DEPLOY TO AWS EC2
+  # 2. DEPLOY TO AWS EC2
   # ============================================================
 
   deploy-to-ec2:
 
     needs: build-and-push
+
     runs-on: ubuntu-latest
 
     steps:
+
+      # --------------------------------------------------------
+      # Connect to EC2
+      # --------------------------------------------------------
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.2
@@ -83,49 +118,102 @@ jobs:
 
             set -e
 
-            echo "======================================"
-            echo "STARTING DEPLOYMENT"
-            echo "======================================"
+            echo "=========================================="
+            echo "STARTING SECURITY SERVICE DEPLOYMENT"
+            echo "=========================================="
+
 
             # ==================================================
             # CREATE DEPLOYMENT DIRECTORY
             # ==================================================
 
             mkdir -p ~/security-service
+
             cd ~/security-service
+
 
             # ==================================================
             # LOGIN TO GHCR
             # ==================================================
 
+            echo "Logging into GHCR..."
+
             echo "${{ secrets.GHCR_TOKEN }}" | \
             docker login ghcr.io \
-              -u "${{ github.repository_owner }}" \
+              -u "saigoverdhan" \
               --password-stdin
 
+
             # ==================================================
-            # CREATE .env ON EC2
+            # CREATE EC2 .env FILE
+            # ==================================================
+            #
+            # IMPORTANT:
+            # These names MUST match your
+            # application-env.properties.
+            #
             # ==================================================
 
             cat > .env <<EOF
 
+            # ==================================================
+            # DATABASE
+            # ==================================================
+
+            DB_URL=jdbc:mysql://mysql:3306/security
             DB_USERNAME=securityuser
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
 
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
 
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            # ==================================================
+            # GOOGLE OAUTH
+            # ==================================================
 
-            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            OAUTH_NAME=${{ secrets.GOOGLE_CLIENT_ID }}
+            OAUTH_Secret=${{ secrets.GOOGLE_CLIENT_SECRET }}
 
-            GHCR_USERNAME=${{ github.repository_owner }}
+
+            # ==================================================
+            # SERVER
+            # ==================================================
+
+            server_port=8080
+
+
+            # ==================================================
+            # EUREKA
+            # ==================================================
+
+            eureka_server_url=http://localhost:8761/eureka/
+
+
+            # ==================================================
+            # JWT
+            # ==================================================
+
+            jwt_s_key=${{ secrets.JWT_SECRET }}
+
+            access_token_expirey=${{ secrets.ACCESS_TOKEN_EXPIRY }}
+
+            refresh_token_expirey=${{ secrets.REFRESH_TOKEN_EXPIRY }}
+
+
+            # ==================================================
+            # EMAIL / SMTP
+            # ==================================================
+
+            email_id=${{ secrets.MAIL_USERNAME }}
+
+            email_password=${{ secrets.MAIL_PASSWORD }}
 
             EOF
 
+
+            # Protect secrets
+
             chmod 600 .env
+
 
             # ==================================================
             # CREATE DOCKER COMPOSE FILE
@@ -136,7 +224,7 @@ jobs:
             services:
 
               # ==================================================
-              # MYSQL DATABASE
+              # MYSQL
               # ==================================================
 
               mysql:
@@ -148,12 +236,17 @@ jobs:
                 restart: unless-stopped
 
                 environment:
+
                   MYSQL_DATABASE: security
+
                   MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+
                   MYSQL_USER: ${DB_USERNAME}
+
                   MYSQL_PASSWORD: ${DB_PASSWORD}
 
                 volumes:
+
                   - mysql_data:/var/lib/mysql
 
                 healthcheck:
@@ -171,8 +264,11 @@ jobs:
                     ]
 
                   interval: 10s
+
                   timeout: 5s
+
                   retries: 10
+
                   start_period: 30s
 
 
@@ -194,30 +290,89 @@ jobs:
                     condition: service_healthy
 
                 ports:
+
                   - "8080:8080"
 
                 environment:
 
+                  # ------------------------------------------------
                   # DATABASE
+                  # ------------------------------------------------
+
                   DB_URL: jdbc:mysql://mysql:3306/security
+
                   DB_USERNAME: ${DB_USERNAME}
+
                   DB_PASSWORD: ${DB_PASSWORD}
 
-                  # JWT
-                  JWT_SECRET: ${JWT_SECRET}
 
+                  # ------------------------------------------------
                   # GOOGLE OAUTH
-                  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-                  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+                  # ------------------------------------------------
 
+                  OAUTH_NAME: ${OAUTH_NAME}
+
+                  OAUTH_Secret: ${OAUTH_Secret}
+
+
+                  # ------------------------------------------------
+                  # SERVER
+                  # ------------------------------------------------
+
+                  server_port: ${server_port}
+
+
+                  # ------------------------------------------------
+                  # EUREKA
+                  # ------------------------------------------------
+
+                  eureka_server_url: ${eureka_server_url}
+
+                  # If Eureka is not deployed on this EC2,
+                  # disable Eureka client registration.
+                  EUREKA_CLIENT_ENABLED: "false"
+
+
+                  # ------------------------------------------------
+                  # JWT
+                  # ------------------------------------------------
+
+                  jwt_s_key: ${jwt_s_key}
+
+                  access_token_expirey: ${access_token_expirey}
+
+                  refresh_token_expirey: ${refresh_token_expirey}
+
+
+                  # ------------------------------------------------
                   # SMTP / GMAIL
+                  # ------------------------------------------------
+
+                  email_id: ${email_id}
+
+                  email_password: ${email_password}
+
+
+                  # ------------------------------------------------
+                  # Spring Mail configuration
+                  # ------------------------------------------------
+
                   SPRING_MAIL_HOST: smtp.gmail.com
+
                   SPRING_MAIL_PORT: 587
-                  SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
-                  SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+                  SPRING_MAIL_USERNAME: ${email_id}
+
+                  SPRING_MAIL_PASSWORD: ${email_password}
 
                   SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+
                   SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+
+
+            # ==================================================
+            # MYSQL VOLUME
+            # ==================================================
 
             volumes:
 
@@ -225,79 +380,118 @@ jobs:
 
             EOF
 
+
+            # ==================================================
+            # SHOW CONFIGURATION
+            # ==================================================
+
+            echo "=========================================="
+            echo "DOCKER COMPOSE CONFIGURATION"
+            echo "=========================================="
+
+            docker compose config
+
+
             # ==================================================
             # PULL LATEST APPLICATION IMAGE
             # ==================================================
 
-            echo "======================================"
-            echo "PULLING LATEST IMAGE"
-            echo "======================================"
+            echo "=========================================="
+            echo "PULLING LATEST SECURITY SERVICE IMAGE"
+            echo "=========================================="
 
             docker pull \
-              ghcr.io/${{ github.repository_owner }}/security-service:latest
+              ghcr.io/saigoverdhan/security-service:latest
+
 
             # ==================================================
-            # STOP OLD DEPLOYMENT
+            # STOP OLD CONTAINERS
             # ==================================================
 
-            echo "======================================"
-            echo "STOPPING OLD CONTAINERS"
-            echo "======================================"
+            echo "=========================================="
+            echo "STOPPING OLD DEPLOYMENT"
+            echo "=========================================="
 
             docker compose down
+
 
             # ==================================================
             # START MYSQL + SPRING BOOT
             # ==================================================
 
-            echo "======================================"
-            echo "STARTING APPLICATION"
-            echo "======================================"
+            echo "=========================================="
+            echo "STARTING MYSQL + SPRING BOOT"
+            echo "=========================================="
 
             docker compose up -d
 
+
             # ==================================================
-            # WAIT FOR APPLICATION
+            # WAIT FOR STARTUP
             # ==================================================
 
-            echo "Waiting for containers..."
+            echo "Waiting for containers to start..."
 
             sleep 20
 
+
             # ==================================================
-            # SHOW CONTAINER STATUS
+            # CONTAINER STATUS
             # ==================================================
 
-            echo "======================================"
+            echo "=========================================="
             echo "CONTAINER STATUS"
-            echo "======================================"
+            echo "=========================================="
 
             docker ps
 
+
             # ==================================================
-            # SHOW MYSQL LOGS
+            # MYSQL STATUS
             # ==================================================
 
-            echo "======================================"
+            echo "=========================================="
+            echo "MYSQL STATUS"
+            echo "=========================================="
+
+            docker inspect \
+              --format='{{.State.Health.Status}}' \
+              security-mysql || true
+
+
+            # ==================================================
+            # MYSQL LOGS
+            # ==================================================
+
+            echo "=========================================="
             echo "MYSQL LOGS"
-            echo "======================================"
+            echo "=========================================="
 
-            docker logs --tail 30 security-mysql
+            docker logs --tail 30 security-mysql || true
+
 
             # ==================================================
-            # SHOW SPRING BOOT LOGS
+            # SPRING BOOT LOGS
             # ==================================================
 
-            echo "======================================"
+            echo "=========================================="
             echo "SPRING BOOT LOGS"
-            echo "======================================"
+            echo "=========================================="
 
-            docker logs --tail 50 security-service
+            docker logs --tail 80 security-service || true
+
 
             # ==================================================
-            # DEPLOYMENT COMPLETE
+            # FINAL STATUS
             # ==================================================
 
-            echo "======================================"
+            echo "=========================================="
+            echo "FINAL CONTAINER STATUS"
+            echo "=========================================="
+
+            docker ps
+
+
+            echo "=========================================="
             echo "DEPLOYMENT COMPLETED"
-            echo "======================================"
+            echo "=========================================="
